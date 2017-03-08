@@ -27,10 +27,28 @@ $(function(){
 
 
     /* Muse overrides */
+   lastx = [0,0,0,0, 0,0,0,0, 0,0,0,0,  0,0,0,0, 0,0,0,0];
+   x= [];
 
     Muse.relative.brainwave = function(band, obj){
-       var value = average(obj);
-           points[band].push(value);
+      var value = average(obj);
+      obj.shift();
+      x = x.concat(obj);
+      if (band=="theta") {
+        console.log(lastx+" "+x);
+        var d = calcDist(x,lastx); console.log(d);
+        if (d>0.3) {
+          // do something ...
+        }
+        lastx = x;
+        x=[]
+      }
+
+       if (band=="theta"){
+         points[band].push(d);
+       } else {
+         points[band].push(value);
+       }
 
         if (points[band].length > 23) {
             points[band].shift();
@@ -234,6 +252,14 @@ $(function(){
     });
 
     $polarCanvas.after($(polar.generateLegend()));*/
+
+    function calcDist(x,y){
+      d=0;
+      for(i=0; i<20;i++){
+        d += (x[i]-y[i])**2
+      }
+      return Math.sqrt(d)
+    }
 
     var updatePolarData = function(){
         var i;
