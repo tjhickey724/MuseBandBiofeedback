@@ -29,14 +29,52 @@ $(function(){
     /* Muse overrides */
    lastx = [0,0,0,0, 0,0,0,0, 0,0,0,0,  0,0,0,0, 0,0,0,0];
    x= [];
+   var window_size=600;
+   var window_list = [];
+   for(var i =0; i<window_size; i++){
+     window_list.push(1);
+   }
+   window_sum=window_size+0.0;
+   var counter=0;
 
     Muse.relative.brainwave = function(band, obj){
       var value = average(obj);
       obj.shift();
       x = x.concat(obj);
       if (band=="theta") {
-        console.log(lastx+" "+x);
-        var d = calcDist(x,lastx); console.log(d);
+	  //console.log(lastx+" "+x);
+	var d = calcDist(x,lastx);// console.log(d);
+  	var k = nearestCluster(x); console.log("cluster="+k);
+	var kval=0;
+  reading_focus=0
+	switch(k){
+	case 4:
+	case 5:
+	case 8:
+	case 9:
+	case 10: console.log("MATH");kval=0.1;break;
+
+	case 2:
+	case 6:
+	case 12: console.log("READ");kval=0.3;reading_focus = 1; break;
+
+	case 1:
+	case 3: console.log("Closed eyes"); kval=0.45; break;
+
+	case 7:
+	case 11: console.log("Open eyes"); kval=0.5;break;
+	}
+  window_sum = window_sum + reading_focus - window_list.pop();
+  window_list = [reading_focus].concat(window_list);
+  if (window_sum<0.2*window_size && counter > window_size){ // also make sure last interruping was long ago...
+    audio.play();
+    counter = 0;
+  }
+  counter = counter + 1;
+
+  console.log('(k,window_sum)='+k+","+window_sum/window_size*100+"%");
+  console.log(window_list);
+
         if (d>0.3) {
           // do something ...
         }
@@ -45,7 +83,7 @@ $(function(){
       }
 
        if (band=="theta"){
-         points[band].push(d);
+         points[band].push(window_sum/window_size);
        } else {
          points[band].push(value);
        }
@@ -255,11 +293,26 @@ $(function(){
 
     function calcDist(x,y){
       d=0;
-      for(i=0; i<20;i++){
+      for(var i=0; i<20;i++){
         d += (x[i]-y[i])**2
       }
       return Math.sqrt(d)
     }
+
+    function nearestCluster(x) {
+	// calculate the distance between x and each of the 12 clusters, keep track of the closest.
+	min=1000;
+	minindex = 1;
+	for(var i=0;i<12;i++){
+	    d = calcDist(x,clusters[i]);
+	    if (d < min) {
+		min = d;
+		minindex = i;
+	    }
+	}
+	return minindex;
+    }
+
 
     var updatePolarData = function(){
         var i;

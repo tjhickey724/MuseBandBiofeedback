@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> 
+<html>
 <head>
 <title></title>
 
@@ -17,7 +17,7 @@
         font-weight: 700;
         color: #888;
     }
-    
+
         .line-legend li,
         .polararea-legend li {
             display: inline-block;
@@ -57,10 +57,15 @@
 <script src="http://127.0.0.1:8081/socket.io/socket.io.js" type="text/javascript"></script>
 <script src="chart.js" type="text/javascript"></script>
 <script src="muse.js" type="text/javascript"></script>
+<script src="sampleClusters.js" type="text/javascript"></script>
 
 </head>
 
 <body>
+  <audio src="good.wav" id="audio" name="audio">
+  <!-- audio src="takeabreak.mp3" id="audio" name="audio" -->
+    <p>Your browser does not support the <code>audio</code> element.</p>
+</audio>
 	<div id="theVal">0</div>
 	<select id="wave">
 		<option>alpha</option>
@@ -71,10 +76,10 @@
 		<option>mellow</option>
 		<option>concentration</option>
 	</select>
-		
-	
+
+
     <<div class="holder">
-        <h2>My Brainwaves in a line graph</h2>       
+        <h2>My Brainwaves in a line graph</h2>
         <canvas id="line" height="400"></canvas>
     </div>>
     <!--<div class="holder">
@@ -94,7 +99,7 @@
 <div id="reading">
 	<pre>
 		--------
-		
+
 THE PAPERS AND WRITINGS OF ABRAHAM LINCOLN
 
 VOLUME SEVEN
