@@ -83,7 +83,7 @@ $(function(){
       }
 
        if (band=="theta"){
-         points[band].push(window_sum/window_size);
+         points[band].push(value);
        } else {
          points[band].push(value);
        }
