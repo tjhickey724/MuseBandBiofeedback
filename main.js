@@ -69,7 +69,11 @@ $(function(){
 
       obj.shift();  // shift off the name of the band from the obj
       x = x.concat(obj); // push 4 electrode values for current band onto vector x
-
+      var value = average(obj);
+      points[band].push(value);  // add another point on the right of the graph
+      if (points[band].length > 23) {
+        points[band].shift();  // shift the graph to the left
+      }
 
       if (band=="theta") {
         // process the complete 20 dim vector
@@ -131,12 +135,8 @@ $(function(){
 
 
           //GRAPHING THE FIVES BANDS AVERAGED OVER 4 ELECTRODES
-          var value = average(obj);
-          points[band].push(value);  // add another point on the right of the graph
 
-          if (points[band].length > 23) {
-            points[band].shift();  // shift the graph to the left
-          }
+
 
           updateGraphData(); // copies points info into form needed by chart.js
           graph.update();  // call chart.js function to redraw the graph
