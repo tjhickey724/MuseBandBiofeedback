@@ -1,5 +1,9 @@
 $(function(){
-
+    /*
+    The points array keeps track of the last N samples from the museband
+    This is used for plotting the graphs of the bands ..
+    More detail later ...
+    */
     var points = {
             alpha : [],
             beta : [],
@@ -12,7 +16,7 @@ $(function(){
         },
         types = ['alpha', 'beta', 'delta', 'gamma', 'theta','mellow','concentration'];
 
-
+    // connect with the Museband through the Muse object ...
     Muse.connect({
       host: 'http://127.0.0.1',
       port: 8081,
@@ -26,75 +30,127 @@ $(function(){
     });
 
 
-    /* Muse overrides */
+    // keeping track of the most recent 20-dim samples
+    // lastx is the previous one
+    // x is the current one, possibly only partly complete
+    // as we get alpha, beta, delta, gamma, and theta ij 5 separate steps
    lastx = [0,0,0,0, 0,0,0,0, 0,0,0,0,  0,0,0,0, 0,0,0,0];
    x= [];
+
+
+
+   /*
+     Here we initialize the data stuctures needed to calculate the percentage
+     of reading samples in the last window_size samples, initially 600 = 1 min
+     window_list is the list 0s and 1s
+         where 1 is a reading sample and 0 a non-reading sample
+     We initialize it to be 100% reading (optimistically)
+     window_sum is the sum of the numbers is window_list (initially window_size)
+   */
    var window_size=600;
    var window_list = [];
    for(var i =0; i<window_size; i++){
      window_list.push(1);
    }
    window_sum=window_size+0.0;
-   var counter=0;
+   var counter=0; // total number of samples processed
 
+
+
+
+    // this will be called once for each relative band power sample (10Hz)
+    // the obj is a vector for 4 doubles, corresponding to the four electrodes
+    // the band is string and is one of alpha, beta, gamma, delta, theta,
+    // and possibly others ...
     Muse.relative.brainwave = function(band, obj){
-      var value = average(obj);
-      obj.shift();
-      x = x.concat(obj);
+
+      console.log('in brainwave: '+JSON.stringify(obj))
+
+
+      obj.shift();  // shift off the name of the band from the obj
+      x = x.concat(obj); // push 4 electrode values for current band onto vector x
+
+
       if (band=="theta") {
-	  //console.log(lastx+" "+x);
-	var d = calcDist(x,lastx);// console.log(d);
-  	var k = nearestCluster(x); console.log("cluster="+k);
-	var kval=0;
-  reading_focus=0
-	switch(k){
-	case 4:
-	case 5:
-	case 8:
-	case 9:
-	case 10: console.log("MATH");kval=0.1;break;
+        // process the complete 20 dim vector
+	       console.log('after reading theta: '+JSON.stringify(x));
 
-	case 2:
-	case 6:
-	case 12: console.log("READ");kval=0.3;reading_focus = 1; break;
+         // find the nearest cluster and its type
+  	      var k = nearestCluster(x);
+          console.log("cluster="+k);
+          lastx = x;
+          x=[]; // reset x to empty to start reading in the next sample
 
-	case 1:
-	case 3: console.log("Closed eyes"); kval=0.45; break;
+          // find the activity from the cluster number
+          // and use to update the reading_focus parameter
+	        switch(k){
+	            case 4:
+	            case 5:
+	            case 8:
+	            case 9:
+	            case 10: console.log("MATH"); reading_focus=0;break;
 
-	case 7:
-	case 11: console.log("Open eyes"); kval=0.5;break;
-	}
-  window_sum = window_sum + reading_focus - window_list.pop();
-  window_list = [reading_focus].concat(window_list);
-  if (window_sum<0.2*window_size && counter > window_size){ // also make sure last interruping was long ago...
-    audio.play();
-    counter = 0;
-  }
-  counter = counter + 1;
+	            case 2:
+	            case 6:
+	            case 12: console.log("READ"); reading_focus = 1; break;
 
-  console.log('(k,window_sum)='+k+","+window_sum/window_size*100+"%");
-  console.log(window_list);
+	            case 1:
+	            case 3: console.log("Closed eyes");reading_focus=0; break;
 
-        if (d>0.3) {
-          // do something ...
-        }
-        lastx = x;
-        x=[]
-      }
+	            case 7:
+	            case 11: console.log("Open eyes"); reading_focus=0;break;
+	           }
 
-       if (band=="theta"){
-         points[band].push(value);
-       } else {
-         points[band].push(value);
-       }
 
-        if (points[band].length > 23) {
-            points[band].shift();
-        }
+          // AUDITORY CUES
+          // Here we calculate the percentage of samples which were in the reading cluster
+          // averaged over the past window_size samples (currently 600 = 1 minute)
+          // I'll use 600 for that number in this explanation:
+          // window_list is the list of the past 600 samples
+          // window_sum is the number of reading samples in window_list
+          //
 
-        updateGraphData();
-        graph.update();
+          // pop off the oldest sample, reduce the window_sum accordingly
+          // and add the newest sample (reading_focus) which is 0 or 1
+          window_sum = window_sum + reading_focus - window_list.pop();
+          window_list = [reading_focus].concat(window_list);
 
+          // Here we test to see if the "reading focus" has falled too far
+          // That is, if fewer that 20% of their samples have been reading samples
+          // and we've seen at least window_size samples, then we'll warn them
+          // it might be better to use a 5 minute window, or maybe a 30 second window..
+
+          if (window_sum<0.2*window_size){ // also make sure last interruping was long ago...
+            audio.play();
+            counter = 0;
+          }
+          counter = counter + 1;
+
+          console.log('(k,window_sum)='+k+","+window_sum/window_size*100+"%");
+          console.log(window_list);
+
+
+          //GRAPHING THE FIVES BANDS AVERAGED OVER 4 ELECTRODES
+          var value = average(obj);
+          points[band].push(value);  // add another point on the right of the graph
+
+          if (points[band].length > 23) {
+            points[band].shift();  // shift the graph to the left
+          }
+
+          updateGraphData(); // copies points info into form needed by chart.js
+          graph.update();  // call chart.js function to redraw the graph
+
+      } // close if (band == "theta")
+
+
+    // VISUAL CUES
+    // this is where we change the darkness of the text
+    // based on the average value of one of the bands over 4 electrodes
+    // if the value is > 0.6 then c=0 and the text is rgb(0,255,255)
+    // if the value is under < 0.1, then c=255 & text=rgb(255,0,0)
+    // for values between 0.1 and 0.6 it is linearly interpolated
+    // at 0.35 we have c=0.5 and the text color is gray: rgb(128,128,128)
 		var theBand = $("#wave").val();
 		if(band==theBand){
 			var c =
@@ -109,7 +165,9 @@ $(function(){
         //polar.update();
     };
 
+/*
     Muse.experimental.brainwave = function(band, obj){
+      return;
        var value = average(obj);
            points[band].push(value/2.0);
 
@@ -123,6 +181,7 @@ $(function(){
         //updatePolarData();
         //polar.update();
     };
+    */
 
     Muse.muscle.blink = function(obj){
 
@@ -234,62 +293,26 @@ $(function(){
               ]
         };
 
-    var polarData = [{
-            value: 0.5,
-            color: '#52b9e9',
-            label: 'Alpha'
-        },{
-            value: 0.5,
-            color: '#25b9a4',
-            label: 'Beta'
-        },{
-            value: 0.5,
-            color: '#ffdf7c',
-            label: 'Delta'
-        },{
-            value: 0.5,
-            color: '#7c73b4',
-            label: 'Gamma'
-        },{
-            value: 0.5,
-            color: '#d22630',
-            label: 'Theta'
-        },
-		{
-		            value: 0.5,
-		            color: '#000000',
-		            label: 'mellow'
-		        },
-				{
-				            value: 0.5,
-				            color: '#999999',
-				            label: 'concentration'
-				        }
-        ]
 
-    var graph = new Chart(ctx).Line(startingData, {
+    var graph =
+      new Chart(ctx).Line(
+         startingData,
+         {
             animationSteps: 1,
             label: "",
             animation: true,
             responsive: true,
             maintainAspectRatio: false,
-		scaleOverride: true,
-		scaleSteps:20,
-		scaleStepWidth:0.025,
-		scaleStartValue:0.0
+		        scaleOverride: true,
+		        scaleSteps:20,
+		        scaleStepWidth:0.025,
+		        scaleStartValue:0.0
         });
 
     $canvas.after($(graph.generateLegend()));
 
 
-   /* var polar = new Chart(pctx).PolarArea(polarData, {
-        scaleOverride: true,
-        scaleSteps : 0.5,
-        scaleStepWidth: 1,
-        scaleStartValue: 0
-    });
 
-    $polarCanvas.after($(polar.generateLegend()));*/
 
     function calcDist(x,y){
       d=0;
@@ -300,20 +323,66 @@ $(function(){
     }
 
     function nearestCluster(x) {
-	// calculate the distance between x and each of the 12 clusters, keep track of the closest.
-	min=1000;
-	minindex = 1;
-	for(var i=0;i<12;i++){
-	    d = calcDist(x,clusters[i]);
-	    if (d < min) {
-		min = d;
-		minindex = i;
-	    }
-	}
-	return minindex;
+	     // calculate the distance between x and each of the 12 clusters, keep track of the closest.
+	      min=1000;
+	      minindex = 1;
+	      for(var i=0;i<12;i++){
+	           d = calcDist(x,clusters[i]);
+	           if (d < min) {
+		             min = d;
+		             minindex = i;
+	           }
+	      }
+	      return minindex;
     }
 
 
+  /*
+        var polarData = [{
+                value: 0.5,
+                color: '#52b9e9',
+                label: 'Alpha'
+            },{
+                value: 0.5,
+                color: '#25b9a4',
+                label: 'Beta'
+            },{
+                value: 0.5,
+                color: '#ffdf7c',
+                label: 'Delta'
+            },{
+                value: 0.5,
+                color: '#7c73b4',
+                label: 'Gamma'
+            },{
+                value: 0.5,
+                color: '#d22630',
+                label: 'Theta'
+            },
+    		{
+    		            value: 0.5,
+    		            color: '#000000',
+    		            label: 'mellow'
+    		        },
+    				{
+    				            value: 0.5,
+    				            color: '#999999',
+    				            label: 'concentration'
+    				        }
+            ]
+  */
+
+    /* var polar = new Chart(pctx).PolarArea(polarData, {
+         scaleOverride: true,
+         scaleSteps : 0.5,
+         scaleStepWidth: 1,
+         scaleStartValue: 0
+     });
+
+     $polarCanvas.after($(polar.generateLegend()));*/
+
+
+     /*
     var updatePolarData = function(){
         var i;
 
@@ -321,6 +390,7 @@ $(function(){
             polar.valueOf().segments[i].value = points[types[i]][points[types[i]].length - 1];
         }
     };
+    */
 
 
 });

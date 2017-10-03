@@ -1,6 +1,6 @@
 $(function(window, undefined){
 
-	
+
 
 	window.Muse = window.Muse || {
 			eeg : {
@@ -27,10 +27,10 @@ $(function(window, undefined){
 				theta: function(obj) {
 					Muse.relative.brainwave('theta', obj);
 				},
-                'brainwave' : function( band, obj) {
+        'brainwave' : function( band, obj) {
                 }
             },
-            absolute: {
+       absolute: {
             	low_freq: function(obj){
             	},
             	alpha: function(obj) {
@@ -48,10 +48,10 @@ $(function(window, undefined){
             	theta: function(obj) {
             		Muse.absolute.brainwave('theta', obj);
             	},
-            	brainwave : function( band, obj) {            	
+            	brainwave : function( band, obj) {
             	}
             },
-            session: {
+      session: {
             	alpha: function(obj){
             		Muse.session.brainwave('alpha', obj);
             	},
@@ -70,21 +70,21 @@ $(function(window, undefined){
             	brainwave: function(band, obj){
             	}
             },
-            experimental: {
-            	mellow: function (obj){   
-					Muse.session.brainwave('mellow',obj);         		
+      experimental: {
+            	mellow: function (obj){
+					Muse.session.brainwave('mellow',obj);
             	},
-            	concentration: function(obj){ 
-					Muse.session.brainwave('concentration',obj);           		
+            	concentration: function(obj){
+					Muse.session.brainwave('concentration',obj);
             	},
 				brainwave:function(band,obj){
-					
+
 				}
             },
             muscle: {
             	'blink' : function( obj ){
             	},
-            	'jaw' : function( obj ){            		
+            	'jaw' : function( obj ){
             	}
             },
             raw: {
@@ -97,7 +97,7 @@ $(function(window, undefined){
             	fft3: function ( obj ){
             	}
             },
-            accelerate : function( obj ){                	
+            accelerate : function( obj ){
             },
 			connect: function( opts ){
 				var defaults = {
