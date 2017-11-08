@@ -55,8 +55,33 @@ $(function(){
    window_sum=window_size+0.0;
    var counter=0; // total number of samples processed
 
+    var windowSize=30;
+    var touches = new Array(windowSize)
+    touches.fill(1)
+    var bad_touch = 0
 
+    Muse.signal_quality.touch= function(obj){
+      // 1 = good   0 = bad
+      // probably need keep track of the number of bad in last N samples
+      // so keep array touches of size N and pop old off front, push new
+      // adjust the counter...
+      //console.log("touch: "+JSON.stringify(obj));
+      if (obj==0) {
+        bad_touch ++;
+      }
+      if (touches[0]==0) {
+        bad_touch--;
+      }
+      touches = touches.slice(1).concat([obj])
+      if (bad_touch/touches.length > 0.05) {
+        // play some sound ....
+      }
 
+    }
+
+    Muse.signal_quality.horseshoe= function(obj){
+      //console.log("horseshoe: "+JSON.stringify(obj));
+    }
 
     // this will be called once for each relative band power sample (10Hz)
     // the obj is a vector for 4 doubles, corresponding to the four electrodes

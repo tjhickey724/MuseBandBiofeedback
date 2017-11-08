@@ -3,6 +3,14 @@ $(function(window, undefined){
 
 
 	window.Muse = window.Muse || {
+			signal_quality : {
+				touch: function(obj){
+					//console.log(JSON.stringify(obj))
+				},
+				horseshoe: function(obj){
+					//console.log(JSON.stringify(obj))
+				},
+			},
 			eeg : {
 				channels: function(obj){
 				},
@@ -72,22 +80,23 @@ $(function(window, undefined){
             },
       experimental: {
             	mellow: function (obj){
-					Muse.session.brainwave('mellow',obj);
+					         Muse.session.brainwave('mellow',obj);
             	},
             	concentration: function(obj){
-					Muse.session.brainwave('concentration',obj);
+					         Muse.session.brainwave('concentration',obj);
             	},
-				brainwave:function(band,obj){
 
-				}
+			        brainwave:function(band,obj){
+
+				        }
             },
-            muscle: {
+      muscle: {
             	'blink' : function( obj ){
             	},
             	'jaw' : function( obj ){
             	}
             },
-            raw: {
+      raw: {
             	fft0: function ( obj ){
             	},
             	fft1: function ( obj ){
@@ -138,7 +147,13 @@ $(function(window, undefined){
 
 			},
             _handle: {
-                '/muse/elements/alpha_relative' : function(obj){
+                '/muse/elements/touching_forehead' : function(obj){
+                    Muse.signal_quality.touch(obj);
+                },
+								'/muse/elements/horseshoe' : function(obj){
+                    Muse.signal_quality.horseshoe(obj);
+                },
+								'/muse/elements/alpha_relative' : function(obj){
                     Muse.relative.alpha(obj);
                 },
                 '/muse/elements/beta_relative' : function(obj){
