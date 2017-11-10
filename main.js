@@ -55,8 +55,40 @@ $(function(){
    window_sum=window_size+0.0;
    var counter=0; // total number of samples processed
 
+    var windowSize=50;
+    var touches = new Array(windowSize);
+    touches.fill(1);
+    var bad_touch = 0;
+    var touch_sum = touches.reduce(function(sum,value) {
+      return sum+value;
+    },0);
+    //touch_sum adds up all the values in the touches array
+    //this initial state of touch_sum is 1*windowSize, initiated as all good
+    Muse.signal_quality.touch= function(obj){
+      // 1 = good   0 = bad
+      // probably need keep track of the number of bad in last N samples
+      // so keep array touches of size N and pop old off front, push new
+      // adjust the counter...
+      //console.log("touch: "+JSON.stringify(obj));
+      if (obj==0) {
+        bad_touch ++;
+      }
+      if (touches[0]==0) {
+        bad_touch--;
+      }
+      touches = touches.slice(1).concat([obj]);
+      touch_sum = touch_sum + obj - touches[0];
+      //deletes the first and adds the last
+      if (touch_sum/touches.length < 0.8) {
+        audio.play();
+      }
+      //this audio cue will play if more than 20% signals are bad
 
+    }
 
+    Muse.signal_quality.horseshoe= function(obj){
+      //console.log("horseshoe: "+JSON.stringify(obj));
+    }
 
     // this will be called once for each relative band power sample (10Hz)
     // the obj is a vector for 4 doubles, corresponding to the four electrodes
@@ -125,7 +157,7 @@ $(function(){
           // it might be better to use a 5 minute window, or maybe a 30 second window..
 
           if (window_sum<0.2*window_size){ // also make sure last interruping was long ago...
-            audio.play();
+            //audio.play();
             counter = 0;
           }
           counter = counter + 1;
