@@ -59,7 +59,71 @@ $(function(){
 
 
 
-   x= [];
+    x= [];
+
+
+     var windowSize=100;
+     var touches1 = new Array(windowSize);
+     touches1.fill(1);
+     var touches2 = new Array(windowSize);
+     touches2.fill(1);
+     var touches3 = new Array(windowSize);
+     touches3.fill(1);
+     var touches4 = new Array(windowSize);
+     touches4.fill(1);
+     var touch_sum1 = windowSize+0.0;
+     var touch_sum2 = windowSize+0.0;
+     var touch_sum3 = windowSize+0.0;
+     var touch_sum4 = windowSize+0.0;
+     var count1 = 0;
+     var count2 = 0;
+     var count3 = 0;
+     var count4 = 0;
+     //initiation: all good signal data: arrays filled with 1s
+     //and sum = 1*windowSize indicating all good signal
+
+       Muse.signal_quality.horseshoe= function(obj){
+         //1 = good 2 = OK >=3 = bad
+         console.log("horseshoe: "+JSON.stringify(obj));
+
+         touches1 = touches1.slice(1).concat(obj[1]);
+         touch_sum1 = touch_sum1 + obj[1] - touches1[0];
+         count1++;
+         //deletes the first and adds the last
+         if (touch_sum1 > 2*windowSize && count1>=windowSize){
+           audio1.play();
+           count1 = 0;
+         }
+         // this audio cue will play when bad samples appear
+         // also resetting, so that in each windowSize, there will only be one cue
+         // if the user adjust the band in time, there won't be too many cues going on
+
+         // similar things for all four touching points below:
+         touches2 = touches2.slice(1).concat(obj[2]);
+         touch_sum2 = touch_sum2 + obj[2] - touches2[0];
+         count2++;
+         if (touch_sum2 > 2*windowSize && count2>=windowSize){
+           audio2.play();
+           count2 = 0;
+         }
+
+         touches3 = touches3.slice(1).concat(obj[3]);
+         touch_sum3 = touch_sum3 + obj[3] - touches3[0];
+         count3++;
+         if (touch_sum3 > 2*windowSize && count3>=windowSize){
+           audio3.play();
+           count3 = 0;
+         }
+
+         touches4 = touches4.slice(1).concat(obj[4]);
+         touch_sum4 = touch_sum4 + obj[4] - touches4[0];
+         count4++;
+         if (touch_sum4 > 2*windowSize && count4>=windowSize){
+           audio4.play();
+           count4 = 0;
+         }
+
+       };
 
 
 
