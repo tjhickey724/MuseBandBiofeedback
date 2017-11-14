@@ -82,7 +82,7 @@ $(function(){
 
 
 
-/**
+
      var windowSize=100;
      var touches1 = new Array(windowSize);
      touches1.fill(1);
@@ -146,7 +146,7 @@ $(function(){
 
        };
 
-*/
+
 
     // this will be called once for each relative band power sample (10Hz)
     // the obj is a vector for 4 doubles, corresponding to the four electrodes
