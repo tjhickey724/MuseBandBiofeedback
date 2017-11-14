@@ -19,14 +19,14 @@ and wait for the user to resume the calculation....
 
 function startRecord(){
   var startTime = Date.now();
-  start = y.lastIndexOf(startTime);
+  start = y.indexOf(startTime);
   console.log("startTime: "+JSON.stringify(startTime));
   console.log(start);
 }
 
 function stopRecord(){
   var stopTime = Date.now();
-  stop = y.lastIndexOf(stopTime);
+  stop = y.indexOf(stopTime);
   console.log("stopTime: "+JSON.stringify(stopTime));
   console.log(stop);
 }
