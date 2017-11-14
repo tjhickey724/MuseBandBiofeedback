@@ -19,6 +19,7 @@
 <script src="http://127.0.0.1:8081/socket.io/socket.io.js" type="text/javascript"></script>
 <script src="chart.js" type="text/javascript"></script>
 <script src="muse.js" type="text/javascript"></script>
+<script src="FileSaver.js" type="text/javascript"></script>
 
 
 </head>
@@ -47,7 +48,9 @@
 
 <h1> The Thinking Cap App</h1>
 <button onclick="playSound()">play sound</button>
-
+<button onclick="startRecord()">Start Recording</button>
+<button onclick="stopRecord()">Stop Recording</button>
+<button onclick="saveRecord()">Save Recording</button>
 
 <select id="category" onclick="pushCategoryInfo()">
   <option value="0">0</option>
@@ -60,9 +63,13 @@
 <textarea id="feedback" rows="10" cols="100%"></textarea>
 
 
-
+<script src="FileSaver.js" type="text/javascript"></script>
 <script src="main.js" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+
+
+</script>
 
 </div>
 </body> </html>

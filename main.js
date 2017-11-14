@@ -16,8 +16,28 @@ For now, we will pause the recording of data until the computation is done
 and wait for the user to resume the calculation....
 
 */
-function playSound(){
-  audio.play();
+
+function startRecord(){
+  var startTime = Date.now();
+  start = y.lastIndexOf(startTime);
+  console.log("startTime: "+JSON.stringify(startTime));
+  console.log(start);
+}
+
+function stopRecord(){
+  var stopTime = Date.now();
+  stop = y.lastIndexOf(stopTime);
+  console.log("stopTime: "+JSON.stringify(stopTime));
+  console.log(stop);
+}
+
+function saveRecord(){
+  recording = [];
+  recording = y.slice(start,stop);
+  console.log("recording: "+JSON.stringify(recording));
+
+  var blob = new Blob(recording,{type: "text/plain;charset=utf-8"});
+  saveAs(blob, "recording.txt");
 }
 
 function pushCategoryInfo(){
@@ -57,11 +77,12 @@ $(function(){
       }
     });
 
-
-
     x= [];
+    y= [];
 
 
+
+/**
      var windowSize=100;
      var touches1 = new Array(windowSize);
      touches1.fill(1);
@@ -125,7 +146,7 @@ $(function(){
 
        };
 
-
+*/
 
     // this will be called once for each relative band power sample (10Hz)
     // the obj is a vector for 4 doubles, corresponding to the four electrodes
@@ -144,10 +165,14 @@ $(function(){
         brainwaves.push(x);
         count++;
         // process the complete 20 dim vector
-	       console.log(JSON.stringify(x));
+	       //console.log("x: " + JSON.stringify(x));
+
+         var time = Date.now();
+         y.push(time);
+         y = y.concat(x);
+         //console.log("y: " + JSON.stringify(y));
+
          x=[];
-
-
 
 
       } // close if (band == "theta")
@@ -155,6 +180,7 @@ $(function(){
 
 
     };
+
 
 
 
