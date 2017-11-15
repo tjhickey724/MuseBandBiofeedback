@@ -26,6 +26,12 @@ function pushCategoryInfo(){
   lastIndex = count
   log.push(catEntry);
   console.log(JSON.stringify(log));
+  // calculate the average and write on the HTML percentage
+  // append it to $("#feedback") ...
+
+  //reset the averaged
+  totals=[];
+  totalCount=0;
   // call kmeans predict on the entries from lastIndex to count
   // then include current entries in a new kmean classifier ....
 }
@@ -34,6 +40,10 @@ lastIndex=0
 count=0;
 log = []
 brainwaves = []
+
+function add(x,y){
+  // add x and y, component-wise
+}
 
 $(function(){
   /*
@@ -60,6 +70,8 @@ $(function(){
 
 
    x= [];
+   totals=[];
+   totalCount=0;
 
 
 
@@ -74,7 +86,13 @@ $(function(){
 
       obj.shift();  // shift off the name of the band from the obj
       x = x.concat(obj); // push 4 electrode values for current band onto vector x
-
+      if (x==[]){
+        totals = x;
+        totalCount=1;
+      }else{
+        totals = add(x,totals);
+        totalCount++;
+      }
 
       if (band=="theta") {
         brainwaves.push(x);
