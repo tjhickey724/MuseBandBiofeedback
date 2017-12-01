@@ -23,11 +23,11 @@ function pushCategoryInfo(){
   lastIndex = count;
   log.push(catEntry);
   log.push(average);
+  // we stored our averaged values in an array called average
   console.log(JSON.stringify(log));
   // calculate the average and write on the HTML percentage
-  // append it to $("#feedback") ...
 
-  //reset the averaged
+  //reset the totals array and average array
   totals.fill(0);
   totalCount=0;
   average.fill(0);
@@ -69,11 +69,15 @@ $(function(){
 
     x= [];
 
+    // initializing the totals array and average array we use to store data and calculate average
     totals= new Array(20);
     totals.fill(0);
+    // totals is where we adds up data from each electrode
     totalCount=0;
+    // totalCount helps us keep track of how many data points has been added
     average= new Array(20);
     average.fill(0);
+    // average is where we keep the caculated average
 
 
      var windowSize=100;
@@ -159,15 +163,19 @@ $(function(){
         // process the complete 20 dim vector
 	      //console.log("x: " + JSON.stringify(x));
 
+        // now that we have a "complete" x, so we adds it to totals and calculate the average
           for (let i = 0; i<totals.length; i++){
             totals[i] += x[i];
+            // we adds data for each electrode independently
             //console.log("totals" + JSON.stringify(totals[i]));
           }
 
           totalCount++;
+          // keep track of how many x has been added to totals
 
           for (let j = 0; j<average.length; j++){
             average[j] = totals[j]/totalCount;
+            // we calculates average for each electrode independently
             //console.log("average" + JSON.stringify(average[j]));
           }
 
