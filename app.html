@@ -19,15 +19,11 @@
 <script src="http://127.0.0.1:8081/socket.io/socket.io.js" type="text/javascript"></script>
 <script src="chart.js" type="text/javascript"></script>
 <script src="muse.js" type="text/javascript"></script>
-<script src="FileSaver.js" type="text/javascript"></script>
 
 
 </head>
 
 <body>
-  <audio src="good.wav" id="audio" name="audio">
-    <p>Your browser does not support the <code>audio</code> element.</p>
-</audio>
 
 <audio src="1.wav" id="audio1" name="audio1">
   <p>Your browser does not support the <code>audio</code> element.</p>
@@ -47,10 +43,6 @@
 
 
 <h1> The Thinking Cap App</h1>
-<button onclick="playSound()">play sound</button>
-<button onclick="startRecord()">Start Recording</button>
-<button onclick="stopRecord()">Stop Recording</button>
-<button onclick="saveRecord()">Save Recording</button>
 
 <select id="category" onclick="pushCategoryInfo()">
   <option value="0">0</option>
@@ -64,7 +56,6 @@
 </textarea>
 
 
-<script src="FileSaver.js" type="text/javascript"></script>
 <script src="main.js" type="text/javascript"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 

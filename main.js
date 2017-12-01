@@ -17,49 +17,29 @@ and wait for the user to resume the calculation....
 
 */
 
-function startRecord(){
-  var startTime = Date.now();
-  start = y.indexOf(startTime);
-  console.log("startTime: "+JSON.stringify(startTime));
-  console.log(start);
-}
-
-function stopRecord(){
-  var stopTime = Date.now();
-  stop = y.indexOf(stopTime);
-  console.log("stopTime: "+JSON.stringify(stopTime));
-  console.log(stop);
-}
-
-function saveRecord(){
-  recording = [];
-  recording = y.slice(start,stop);
-  console.log("recording: "+JSON.stringify(recording));
-
-  var blob = new Blob(recording,{type: "text/plain;charset=utf-8"});
-  saveAs(blob, "recording.txt");
-}
-
 function pushCategoryInfo(){
   var cat = category.value;
   var catEntry = {cat:cat,start:lastIndex,end:count}
-  lastIndex = count
+  lastIndex = count;
   log.push(catEntry);
+  log.push(average);
   console.log(JSON.stringify(log));
   // calculate the average and write on the HTML percentage
   // append it to $("#feedback") ...
 
   //reset the averaged
-  totals=[];
+  totals.fill(0);
   totalCount=0;
+  average.fill(0);
+  log = [];
   // call kmeans predict on the entries from lastIndex to count
   // then include current entries in a new kmean classifier ....
 }
 
-lastIndex=0
+lastIndex=0;
 count=0;
-log = []
-brainwaves = []
+log = [];
+brainwaves = [];
 
 function add(x,y){
   // add x and y, component-wise
@@ -88,11 +68,12 @@ $(function(){
     });
 
     x= [];
-    y= [];
 
-    totals=[];
+    totals= new Array(20);
+    totals.fill(0);
     totalCount=0;
-
+    average= new Array(20);
+    average.fill(0);
 
 
      var windowSize=100;
@@ -117,7 +98,7 @@ $(function(){
 
        Muse.signal_quality.horseshoe= function(obj){
          //1 = good 2 = OK >=3 = bad
-         console.log("horseshoe: "+JSON.stringify(obj));
+         //console.log("horseshoe: "+JSON.stringify(obj));
 
          touches1 = touches1.slice(1).concat(obj[1]);
          touch_sum1 = touch_sum1 + obj[1] - touches1[0];
@@ -171,26 +152,29 @@ $(function(){
 
       obj.shift();  // shift off the name of the band from the obj
       x = x.concat(obj); // push 4 electrode values for current band onto vector x
-      if (x==[]){
-        totals = x;
-        totalCount=1;
-      }else{
-        totals = add(x,totals);
-        totalCount++;
-      }
 
       if (band=="theta") {
         brainwaves.push(x);
         count++;
         // process the complete 20 dim vector
-	       //console.log("x: " + JSON.stringify(x));
+	      //console.log("x: " + JSON.stringify(x));
 
-         var time = Date.now();
-         y.push(time);
-         y = y.concat(x);
-         //console.log("y: " + JSON.stringify(y));
+          for (let i = 0; i<totals.length; i++){
+            totals[i] += x[i];
+            //console.log("totals" + JSON.stringify(totals[i]));
+          }
 
-         x=[];
+          totalCount++;
+
+          for (let j = 0; j<average.length; j++){
+            average[j] = totals[j]/totalCount;
+            //console.log("average" + JSON.stringify(average[j]));
+          }
+
+
+
+
+        x=[];
 
 
       } // close if (band == "theta")
