@@ -17,7 +17,6 @@
 <link href='http://fonts.googleapis.com/css?family=Lato:400,300,200,100,600,500,700,900,800' rel='stylesheet' type='text/css'>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 <script src="http://127.0.0.1:8081/socket.io/socket.io.js" type="text/javascript"></script>
-<script src="chart.js" type="text/javascript"></script>
 <script src="muse.js" type="text/javascript"></script>
 
 
@@ -44,13 +43,16 @@
 
 <h1> The Thinking Cap App</h1>
 
-<select id="category" onclick="pushCategoryInfo()">
+<select id="category" >
   <option value="0">0</option>
   <option value="1">1</option>
   <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
 </select>
 
-<button id="submitCategory" class="btn btn-lg btn-info">Submit</button>
+<button id="submitCategory" class="btn btn-lg btn-info" onclick="pushCategoryInfo()">Submit</button>
+<button id="compareCategory" class="btn btn-lg btn-info" onclick="compareCategory()">Compare</button>
 <br>
 <textarea id="feedback" rows="10" cols="100%">
 </textarea>
@@ -61,7 +63,7 @@
 
 
 
-</script>
+
 
 </div>
 </body> </html>

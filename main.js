@@ -17,33 +17,80 @@ and wait for the user to resume the calculation....
 
 */
 
+
 function pushCategoryInfo(){
   var cat = category.value;
-  var catEntry = {cat:cat,start:lastIndex,end:count}
+  for (let j = 0; j<average.length; j++){
+    average[j] = totals[j]/totalCount;
+    // we calculates average for each electrode independently
+  }
+  catEntry = {cat:cat,start:lastIndex,end:count,avg:average};
   lastIndex = count;
   log.push(catEntry);
-  log.push(average);
-  // we stored our averaged values in an array called average
   console.log(JSON.stringify(log));
-  // calculate the average and write on the HTML percentage
+  // prints out the average in the console...
 
-  //reset the totals array and average array
+  // we also keep a history array that contains all of the averages
+  // from each categories submitted by the user
+  freezeAvg = average.slice();
+  Object.freeze(freezeAvg);
+  // the average values has to be "frozen" so that it can be stored...
+  historyLog = {cat:cat,start:lastIndex,end:count,avg:freezeAvg}
+  logHistory.push(historyLog);
+  //console.log(JSON.stringify(logHistory));
+
+
+  // reset the totals array and average array
   totals.fill(0);
   totalCount=0;
-  average.fill(0);
   log = [];
-  // call kmeans predict on the entries from lastIndex to count
-  // then include current entries in a new kmean classifier ....
+
 }
+
+function compareCategory() {
+  // easy version of "k-means", comparing last submitted category to earlier categories
+  // and return the "nearest one" based on average values
+
+    // declare a few variables that we will use in calculation
+    // dis = distance
+    // dif = difference
+    // dismin = minimum distance
+    // catP = predicted category
+    var dis = 0;
+    var dif = 0;
+    var dismin = -1;
+    catP = -1;
+
+    for (let a = 0; a<(logHistory.length-1); a++){
+
+      for (let b = 0; b<average.length;b++){
+        dif = logHistory[logHistory.length-1]["avg"][b] - logHistory[a]["avg"][b];
+        // we calculate the literal differnce between the two averages at each electrode
+        dis += (Math.pow(dif,2));
+        // we add up the squares of those as the distance between the two averages
+      }
+      // we find out the smallest distance and the corresponding category
+      if (dismin === -1){
+        dismin = dis;
+        catP = logHistory[a]["cat"];
+      } else if (dismin>dis){
+        dismin = dis;
+        catP = logHistory[a]["cat"];
+      }
+      dis = 0;
+
+    }
+
+  console.log("I think the last log belongs to category " + JSON.stringify(catP));
+  // prints out the predicted result to the array
+}
+
 
 lastIndex=0;
 count=0;
-log = [];
 brainwaves = [];
-
-function add(x,y){
-  // add x and y, component-wise
-}
+log = [];
+logHistory = [];
 
 $(function(){
   /*
@@ -172,15 +219,6 @@ $(function(){
 
           totalCount++;
           // keep track of how many x has been added to totals
-
-          for (let j = 0; j<average.length; j++){
-            average[j] = totals[j]/totalCount;
-            // we calculates average for each electrode independently
-            //console.log("average" + JSON.stringify(average[j]));
-          }
-
-
-
 
         x=[];
 
